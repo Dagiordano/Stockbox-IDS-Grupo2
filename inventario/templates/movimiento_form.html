@@ -1,1 +1,50 @@
-<h1>Aquí va el formulario de movimiento</h1>
+{% extends "base.html" %}
+
+{% block title %}Crear Movimiento de Inventario{% endblock %}
+
+{% block content %}
+<div class="container mx-auto p-4 max-w-2xl">
+    <div class="bg-white p-8 rounded-lg shadow-md">
+        <h1 class="text-2xl font-semibold mb-6">Ajustar Stock</h1>
+
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="space-y-6">
+                <!-- Este campo debería ser un selector de búsqueda/autocompletado en una implementación completa -->
+                <div class="space-y-2">
+                    <label for="prenda_bodega" class="block text-sm font-medium text-gray-700">Producto en Bodega</label>
+                    <select id="prenda_bodega" name="prenda_bodega" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                        <option>--- Seleccione un producto ---</option>
+                        <!-- Aquí se poblarían los PrendaBodega via JavaScript o desde el contexto -->
+                        <!-- Ejemplo: <option value="1">Camisa Polo Blanca - M - Blanco en Bodega Principal</option> -->
+                    </select>
+                </div>
+
+                <div class="space-y-2">
+                    <label for="motivo" class="block text-sm font-medium text-gray-700">Tipo de Movimiento</label>
+                    <select id="motivo" name="motivo" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                        <option value="ADD">Entrada (Agregar)</option>
+                        <option value="SELL">Salida (Venta)</option>
+                        <option value="RETURN">Salida (Devolución a Proveedor)</option>
+                    </select>
+                </div>
+
+                <div class="space-y-2">
+                    <label for="cantidad" class="block text-sm font-medium text-gray-700">Cantidad</label>
+                    <input type="number" name="cantidad" id="cantidad" min="1" placeholder="Cantidad a ajustar" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                </div>
+
+                <div class="flex justify-end gap-4">
+                    <a href="{% url 'lista_movimientos' %}" class="bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded hover:bg-gray-300">
+                        Cancelar
+                    </a>
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        Confirmar Ajuste
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
