@@ -7,6 +7,9 @@ from .models import Producto, Prenda, Bodega, PrendaBodega, MovimientoInventario
 
 
 
+def home(request):
+    return render(request, 'home.html')
+
 # Dashboard
 def dashboard(request):
     # logica para el dashboard
