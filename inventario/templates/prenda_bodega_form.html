@@ -1,1 +1,7 @@
-<h1>Aquí va el formulario de prenda bodega</h1>
+<h1>Prenda en Bodega</h1>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Guardar</button>
+</form>
+<p><a href="{% url 'lista_prenda_bodega' %}">Volver a la lista</a></p>
