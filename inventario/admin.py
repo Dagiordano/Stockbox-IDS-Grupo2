@@ -1,3 +1,8 @@
 from django.contrib import admin
+from .models import Producto, Prenda, Bodega, PrendaBodega, MovimientoInventario
 
-# Register your models here.
+admin.site.register(Producto)
+admin.site.register(Prenda)
+admin.site.register(Bodega)
+admin.site.register(PrendaBodega)
+admin.site.register(MovimientoInventario)
