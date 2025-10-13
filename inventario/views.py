@@ -1,6 +1,7 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from .models import Producto, Prenda, Bodega, PrendaBodega, MovimientoInventario
+from .forms import ProductoForm
 
 
 # Create your views here.
@@ -20,19 +21,54 @@ def dashboard(request):
 # Productos CRUD
 def lista_productos(request):
     # logica para listar productos
+    productos = Producto.objects.all()
    
-    return render(request, 'productos_list.html')
+    return render(request, 'productos_list.html', {'productos': productos})
 
 def crear_producto(request):
     # logica para crear producto
-    return render(request, 'producto_form.html')
+    if request.method == 'POST':
+        form = ProductoForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('lista_productos')
+    else:
+        form = ProductoForm()
+
+    tallas = ["XS", "S", "M", "L", "XL", "XXL"]
+    colores = ["Negro", "Blanco", "Gris", "Azul", "Rojo", "Verde", "Amarillo", "Rosa", "Morado", "Café"]
+
+    return render(request, 'producto_form.html', {
+        'form': form,
+        'tallas': tallas,
+        'colores': colores
+        })
 
 def editar_producto(request, id):
     # logica para editar producto
-    return render(request, 'producto_form.html')
+    producto = get_object_or_404(Producto, pk=id)
+    if request.method == 'POST':
+        form = ProductoForm(request.POST, request.FILES, instance=producto)
+        if form.is_valid():
+            form.save()
+            return redirect('lista_productos')
+    else:
+        form = ProductoForm(instance=producto)
+
+    tallas = ["XS", "S", "M", "L", "XL", "XXL"]
+    colores = ["Negro", "Blanco", "Gris", "Azul", "Rojo", "Verde", "Amarillo", "Rosa", "Morado", "Café"]
+
+    return render(request, 'producto_form.html', {
+        'form': form,
+        'tallas': tallas,
+        'colores': colores
+        })
 
 def eliminar_producto(request, id):
     # logica para eliminar producto
+    producto = get_object_or_404(Producto, pk=id)
+    producto.delete()
+
     return render(request, 'productos_list.html')
 
 
