@@ -1,1 +1,21 @@
-<h1>Aquí va el formulario de movimiento</h1>
+<h1>Crear Movimiento</h1>
+
+<h2>Flujo estándar (usa PrendaBodega existente)</h2>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <input type="hidden" name="usar_extendido" value="0" />
+  <button type="submit">Guardar (estándar)</button>
+</form>
+
+<hr/>
+
+<h2>Flujo extendido (ADD crea Prenda y PrendaBodega)</h2>
+<form method="post">
+  {% csrf_token %}
+  {{ add_form.as_p }}
+  <input type="hidden" name="usar_extendido" value="1" />
+  <button type="submit">Guardar (extendido)</button>
+</form>
+
+<p><a href="{% url 'lista_movimientos' %}">Volver a la lista</a></p>
