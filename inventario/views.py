@@ -132,8 +132,8 @@ def eliminar_prenda_bodega(request, id):
 
 # Movimientos CRUD
 def lista_movimientos(request):
-    # logica para listar movimientos
-    return render(request, 'movimientos_list.html')
+    movimientos = MovimientoInventario.objects.select_related('prenda_bodega__prenda__producto', 'usuario').order_by('-fecha')
+    return render(request, 'movimientos_list.html', {'movimientos': movimientos})
 
 def crear_movimiento(request):
     # logica para crear movimiento
