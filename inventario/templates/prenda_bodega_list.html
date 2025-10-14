@@ -1,1 +1,26 @@
-<h1>Aquí va la lista de prenda bodega</h1>
+{% extends 'base.html' %}
+
+{% block title %}Stock por Bodega - StockBox{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-2xl shadow-lg p-8">
+    <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+            <div class="bg-orange-600 p-3 rounded-lg">
+                <i class="fas fa-boxes text-white text-xl"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-800">Stock por Bodega</h1>
+        </div>
+        <a href="{% url 'crear_prenda_bodega' %}" class="bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 transition-colors duration-200 flex items-center gap-2">
+            <i class="fas fa-plus"></i>
+            Asignar Stock
+        </a>
+    </div>
+    
+    <div class="text-center py-12">
+        <i class="fas fa-boxes text-6xl text-gray-300 mb-4"></i>
+        <h2 class="text-2xl font-semibold text-gray-600 mb-2">Stock por Bodega</h2>
+        <p class="text-gray-500">Aquí se mostrará el stock de prendas por bodega</p>
+    </div>
+</div>
+{% endblock %}

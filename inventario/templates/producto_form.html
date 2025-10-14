@@ -1,22 +1,148 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Agregar Nuevo Producto</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-50 min-h-screen flex flex-col">
+{% extends 'base.html' %}
 
-  <!-- Contenedor principal -->
-  <div class="container mx-auto px-6 py-10 flex-1">
+{% block title %}{% if form.instance.pk %}Editar Producto{% else %}Nuevo Producto{% endif %} - StockBox{% endblock %}
 
+{% block content %}
+<div class="bg-white rounded-2xl shadow-lg p-8">
     <!-- Título -->
     <div class="flex items-center gap-3 mb-8">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
-      </svg>
-      <h1 class="text-2xl font-semibold text-gray-800">Agregar Nuevo Producto</h1>
+        <div class="bg-indigo-600 p-3 rounded-lg">
+            <i class="fas fa-box text-white text-xl"></i>
+        </div>
+        <h1 class="text-3xl font-semibold text-gray-800">
+            {% if form.instance.pk %}Editar Producto{% else %}Agregar Nuevo Producto{% endif %}
+        </h1>
     </div>
+
+    <form method="POST" enctype="multipart/form-data" class="space-y-8">
+        {% csrf_token %}
+
+        <!-- Información del producto -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Datos -->
+            <div class="lg:col-span-2 bg-gray-50 rounded-2xl p-6">
+                <h2 class="text-lg font-semibold text-gray-700 mb-4">Información del Producto</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600">Nombre del Producto *</label>
+                        {{ form.nombre }}
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600">SKU *</label>
+                        {{ form.sku }}
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600">Categoría *</label>
+                        {{ form.categoria }}
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600">Marca</label>
+                        {{ form.marca }}
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600">Proveedor</label>
+                        {{ form.proveedor }}
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600">Estado *</label>
+                        {{ form.estado }}
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600">Género *</label>
+                        {{ form.genero }}
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600">Material *</label>
+                        <input type="text" name="material" value="{{ form.instance.material|default:'' }}" placeholder="Ej: Algodón, Poliéster, etc."
+                            class="mt-1 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm" required>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <label class="block text-sm font-medium text-gray-600">Descripción</label>
+                    {{ form.descripcion }}
+                </div>
+            </div>
+
+            <!-- Precios e Imagen -->
+            <div class="space-y-6">
+                
+                <!-- Precios -->
+                <div class="bg-gray-50 rounded-2xl p-6">
+                    <h2 class="text-lg font-semibold text-gray-700 mb-4">Precios</h2>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Precio de Compra</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                                {{ form.precio_compra }}
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Precio de Venta *</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                                {{ form.precio_venta }}
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Stock Mínimo</label>
+                            {{ form.stock_minimo }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Imagen -->
+                <div class="bg-gray-50 rounded-2xl p-6">
+                    <h2 class="text-lg font-semibold text-gray-700 mb-4">Imagen del Producto</h2>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Subir Imagen</label>
+                            {{ form.imagen }}
+                        </div>
+                        
+                        {% if form.instance.imagen %}
+                        <div class="mt-4">
+                            <label class="block text-sm font-medium text-gray-600 mb-2">Imagen Actual</label>
+                            <img src="{{ form.instance.imagen.url }}" alt="{{ form.instance.nombre }}" class="w-full h-32 object-cover rounded-lg">
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+            <a href="{% url 'lista_productos' %}" class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                Cancelar
+            </a>
+            <button type="submit" class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200">
+                {% if form.instance.pk %}Actualizar Producto{% else %}Crear Producto{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
 
     <form method="POST" enctype="multipart/form-data" class="space-y-8">
       {% csrf_token %}
@@ -79,8 +205,8 @@
                 class="mt-1 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm" required>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-600">Costo</label>
-              <input type="number" name="costo" placeholder="25000"
+              <label class="block text-sm font-medium text-gray-600">Precio de Compra</label>
+              <input type="number" name="precio_compra" placeholder="25000"
                 class="mt-1 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm">
             </div>
             <div>

@@ -1,1 +1,188 @@
-<h1>Aquí va la lista de prendas</h1>
+{% extends 'base.html' %}
+{% load currency_filters %}
+
+{% block title %}Prendas - StockBox{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-2xl shadow-lg p-8">
+    <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+            <div class="bg-green-600 p-3 rounded-lg">
+                <i class="fas fa-tshirt text-white text-xl"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-800">Prendas</h1>
+        </div>
+        <a href="{% url 'crear_prenda' %}" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center gap-2">
+            <i class="fas fa-plus"></i>
+            Nueva Prenda
+        </a>
+    </div>
+    
+    <!-- Mensajes -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="mb-6 p-4 rounded-lg {% if message.tags == 'success' %}bg-green-100 text-green-800 border border-green-200{% elif message.tags == 'error' %}bg-red-100 text-red-800 border border-red-200{% else %}bg-blue-100 text-blue-800 border border-blue-200{% endif %}">
+                <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %} mr-2"></i>
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    {% if prendas %}
+        <!-- Lista de prendas -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for prenda in prendas %}
+            <div class="bg-gray-50 rounded-xl p-6 hover:shadow-md transition-shadow duration-200 border border-gray-200">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-green-100 p-2 rounded-lg">
+                            <i class="fas fa-tshirt text-green-600"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-800">{{ prenda.producto.nombre }}</h3>
+                            <p class="text-sm text-gray-500">{{ prenda.talla }} - {{ prenda.color }}</p>
+                        </div>
+                    </div>
+                    <div class="flex space-x-2">
+                        <a href="{% url 'editar_prenda' prenda.id %}" class="text-green-600 hover:text-green-800 transition-colors duration-200" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <button onclick="confirmarEliminar({{ prenda.id }}, '{{ prenda.producto.nombre }} - {{ prenda.talla }} {{ prenda.color }}')" class="text-red-600 hover:text-red-800 transition-colors duration-200" title="Eliminar">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="space-y-2 text-sm text-gray-600">
+                    <div class="flex items-center justify-between">
+                        <span>SKU:</span>
+                        <span class="font-medium">{{ prenda.producto.sku }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span>Categoría:</span>
+                        <span class="font-medium">{{ prenda.producto.categoria }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span>Precio:</span>
+                        <span class="font-medium text-green-600">${{ prenda.producto.precio_venta|currency_format }} CLP</span>
+                    </div>
+                    
+                    <!-- Información de Stock y Bodega -->
+                    {% if prenda.prendabodega_set.all %}
+                        {% for prenda_bodega in prenda.prendabodega_set.all %}
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-3">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-blue-800 font-medium">Stock:</span>
+                                <span class="px-2 py-1 rounded-full text-xs {% if prenda_bodega.stock > 0 %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                    {{ prenda_bodega.stock }} unidades
+                                </span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-blue-800 font-medium">Bodega:</span>
+                                <span class="text-blue-600">{{ prenda_bodega.bodega.ubicacion }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mt-3">
+                            <div class="text-center text-yellow-800">
+                                <i class="fas fa-exclamation-triangle mr-1"></i>
+                                Sin stock asignado
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="flex items-center justify-between mt-3">
+                        <span>Estado:</span>
+                        <span class="px-2 py-1 rounded-full text-xs {% if prenda.producto.estado == 'nuevo' %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                            {{ prenda.producto.get_estado_display }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Estadísticas -->
+        <div class="mt-8 bg-green-50 border border-green-200 rounded-xl p-6">
+            <h3 class="text-lg font-semibold text-green-800 mb-4">
+                <i class="fas fa-chart-bar mr-2"></i>Resumen
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-green-600">{{ prendas.count }}</div>
+                    <div class="text-green-700">Total Prendas</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-blue-600">
+                        {% regroup prendas by producto.nombre as productos_unicos %}{{ productos_unicos|length }}
+                    </div>
+                    <div class="text-blue-700">Productos Únicos</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-purple-600">{{ total_stock }}</div>
+                    <div class="text-purple-700">Total Stock</div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <!-- Estado vacío -->
+        <div class="text-center py-12">
+            <i class="fas fa-tshirt text-6xl text-gray-300 mb-4"></i>
+            <h2 class="text-2xl font-semibold text-gray-600 mb-2">No hay prendas registradas</h2>
+            <p class="text-gray-500 mb-6">Crea tu primera prenda para comenzar a gestionar tu inventario</p>
+            <a href="{% url 'crear_prenda' %}" class="inline-flex items-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200">
+                <i class="fas fa-plus mr-2"></i>
+                Crear Primera Prenda
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Modal de confirmación para eliminar -->
+<div id="modalEliminar" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-2xl p-8 max-w-md w-full">
+            <div class="text-center">
+                <div class="bg-red-100 p-3 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                    <i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">¿Eliminar Prenda?</h3>
+                <p class="text-gray-600 mb-6">¿Estás seguro de que quieres eliminar la prenda <strong id="nombrePrenda"></strong>?</p>
+                <p class="text-sm text-red-600 mb-6">Esta acción no se puede deshacer.</p>
+                
+                <div class="flex space-x-4">
+                    <button onclick="cerrarModal()" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                        Cancelar
+                    </button>
+                    <form id="formEliminar" method="POST" class="flex-1">
+                        {% csrf_token %}
+                        <button type="submit" class="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200">
+                            Eliminar
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmarEliminar(id, nombre) {
+    document.getElementById('nombrePrenda').textContent = nombre;
+    document.getElementById('formEliminar').action = `/prendas/eliminar/${id}/`;
+    document.getElementById('modalEliminar').classList.remove('hidden');
+}
+
+function cerrarModal() {
+    document.getElementById('modalEliminar').classList.add('hidden');
+}
+
+// Cerrar modal al hacer clic fuera
+document.getElementById('modalEliminar').addEventListener('click', function(e) {
+    if (e.target === this) {
+        cerrarModal();
+    }
+});
+</script>
+{% endblock %}
