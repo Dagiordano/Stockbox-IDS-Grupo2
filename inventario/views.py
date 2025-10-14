@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.contrib import messages
 from .models import Producto, Prenda, Bodega, PrendaBodega, MovimientoInventario
-from .forms import ProductoForm
+from .forms import ProductoForm, PrendaForm, BodegaForm, MovimientoForm
 
 
 # Create your views here.
@@ -13,6 +13,10 @@ def home(request):
     return render(request, 'home.html')
 
 # Dashboard
+def gestionar(request):
+    # Vista para seleccionar qué gestionar (productos, prendas, bodegas)
+    return render(request, 'gestionar.html')
+
 def dashboard(request):
     # logica para el dashboard
     return render(request, 'dashboard.html')
@@ -80,47 +84,62 @@ def eliminar_producto(request, id):
 
 # Prendas CRUD
 def lista_prendas(request):
-    prendas = Prenda.objects.all().select_related('producto')
-    return render(request, 'prendas_list.html', {'prendas': prendas})
+    prendas = Prenda.objects.all().select_related('producto').prefetch_related('prendabodega_set__bodega')
+    
+    # Calcular total de stock
+    total_stock = 0
+    for prenda in prendas:
+        for pb in prenda.prendabodega_set.all():
+            total_stock += pb.stock
+    
+    return render(request, 'prendas_list.html', {
+        'prendas': prendas,
+        'total_stock': total_stock
+    })
 
 def crear_prenda(request):
     if request.method == 'POST':
-        producto_id = request.POST.get('producto')
-        talla = request.POST.get('talla')
-        color = request.POST.get('color')
-        precio_compra = request.POST.get('precio_compra')
-        precio_venta = request.POST.get('precio_venta')
-        
-        Prenda.objects.create(
-            producto_id=producto_id,
-            talla=talla,
-            color=color,
-            precio_compra=precio_compra,
-            precio_venta=precio_venta
-        )
-        
-        messages.success(request, 'Prenda creada exitosamente')
-        return redirect('lista_prendas')
-    
-    productos = Producto.objects.all()
-    return render(request, 'prenda_form.html', {'productos': productos})
+        form = PrendaForm(request.POST)
+        if form.is_valid():
+            # Guardar la prenda
+            prenda = form.save()
+            
+            # Crear la relación PrendaBodega con el stock inicial
+            bodega = form.cleaned_data['bodega']
+            stock_inicial = form.cleaned_data['stock_inicial']
+            
+            PrendaBodega.objects.create(
+                prenda=prenda,
+                bodega=bodega,
+                stock=stock_inicial
+            )
+            
+            messages.success(request, 'Prenda creada exitosamente')
+            return redirect('lista_prendas')
+    else:
+        form = PrendaForm()
+
+    return render(request, 'prenda_form.html', {'form': form})
 
 def editar_prenda(request, id):
     prenda = get_object_or_404(Prenda, id=id)
     
     if request.method == 'POST':
-        prenda.producto_id = request.POST.get('producto')
-        prenda.talla = request.POST.get('talla')
-        prenda.color = request.POST.get('color')
-        prenda.precio_compra = request.POST.get('precio_compra')
-        prenda.precio_venta = request.POST.get('precio_venta')
-        prenda.save()
-        
-        messages.success(request, 'Prenda actualizada exitosamente')
-        return redirect('lista_prendas')
+        form = PrendaForm(request.POST, instance=prenda)
+        if form.is_valid():
+            # Solo guardar los datos básicos de la prenda
+            # Los campos de bodega y stock_inicial no se procesan en edición
+            prenda.producto = form.cleaned_data['producto']
+            prenda.talla = form.cleaned_data['talla']
+            prenda.color = form.cleaned_data['color']
+            prenda.save()
+            
+            messages.success(request, 'Prenda actualizada exitosamente')
+            return redirect('lista_prendas')
+    else:
+        form = PrendaForm(instance=prenda)
     
-    productos = Producto.objects.all()
-    return render(request, 'prenda_form.html', {'prenda': prenda, 'productos': productos})
+    return render(request, 'prenda_form.html', {'form': form, 'prenda': prenda})
 
 def eliminar_prenda(request, id):
     prenda = get_object_or_404(Prenda, id=id)
@@ -141,28 +160,29 @@ def lista_bodegas(request):
 
 def crear_bodega(request):
     if request.method == 'POST':
-        ubicacion = request.POST.get('ubicacion')
-        
-        Bodega.objects.create(
-            ubicacion=ubicacion
-        )
-        
-        messages.success(request, 'Bodega creada exitosamente')
-        return redirect('lista_bodegas')
+        form = BodegaForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Bodega creada exitosamente')
+            return redirect('lista_bodegas')
+    else:
+        form = BodegaForm()
     
-    return render(request, 'bodega_form.html')
+    return render(request, 'bodega_form.html', {'form': form})
 
 def editar_bodega(request, id):
     bodega = get_object_or_404(Bodega, id=id)
     
     if request.method == 'POST':
-        bodega.ubicacion = request.POST.get('ubicacion')
-        bodega.save()
-        
-        messages.success(request, 'Bodega actualizada exitosamente')
-        return redirect('lista_bodegas')
+        form = BodegaForm(request.POST, instance=bodega)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Bodega actualizada exitosamente')
+            return redirect('lista_bodegas')
+    else:
+        form = BodegaForm(instance=bodega)
     
-    return render(request, 'bodega_form.html', {'bodega': bodega})
+    return render(request, 'bodega_form.html', {'form': form, 'bodega': bodega})
 
 def eliminar_bodega(request, id):
     bodega = get_object_or_404(Bodega, id=id)
@@ -199,8 +219,38 @@ def lista_movimientos(request):
     return render(request, 'movimientos_list.html', {'movimientos': movimientos})
 
 def crear_movimiento(request):
-    # logica para crear movimiento
-    return render(request, 'movimiento_form.html')
+    if request.method == 'POST':
+        form = MovimientoForm(request.POST)
+        if form.is_valid():
+            movimiento = form.save(commit=False)
+            
+            # Solo asignar usuario si está autenticado
+            if request.user.is_authenticated:
+                movimiento.usuario = request.user
+            # Si no está autenticado, el campo usuario quedará como None (null)
+            
+            movimiento.save()
+            
+            # Validar que no se pueda sacar más stock del disponible
+            prenda_bodega = movimiento.prenda_bodega
+            if movimiento.motivo in ['SELL', 'RETURN']:
+                if prenda_bodega.stock < movimiento.cantidad:
+                    messages.error(request, f'No hay suficiente stock. Disponible: {prenda_bodega.stock} unidades')
+                    return render(request, 'movimiento_form.html', {'form': form})
+            
+            # Actualizar el stock en PrendaBodega
+            if movimiento.motivo == 'ADD':
+                prenda_bodega.stock += movimiento.cantidad
+            elif movimiento.motivo in ['SELL', 'RETURN']:
+                prenda_bodega.stock -= movimiento.cantidad
+            prenda_bodega.save()
+            
+            messages.success(request, 'Movimiento de inventario creado exitosamente')
+            return redirect('lista_movimientos')
+    else:
+        form = MovimientoForm()
+    
+    return render(request, 'movimiento_form.html', {'form': form})
 
 def editar_movimiento(request, id):
     # logica para editar movimiento

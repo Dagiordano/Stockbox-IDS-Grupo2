@@ -1,1 +1,104 @@
-<h1>Aquí va el formulario de bodega</h1>
+{% extends 'base.html' %}
+
+{% block title %}{% if bodega %}Editar Bodega{% else %}Nueva Bodega{% endif %} - StockBox{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-2xl shadow-lg p-8">
+    <!-- Título -->
+    <div class="flex items-center gap-3 mb-8">
+        <div class="bg-blue-600 p-3 rounded-lg">
+            <i class="fas fa-warehouse text-white text-xl"></i>
+        </div>
+        <h1 class="text-3xl font-semibold text-gray-800">
+            {% if bodega %}Editar Bodega{% else %}Nueva Bodega{% endif %}
+        </h1>
+    </div>
+
+    <form method="POST" class="space-y-8">
+        {% csrf_token %}
+
+        <!-- Información de la bodega -->
+        <div class="max-w-2xl mx-auto">
+            <div class="bg-gray-50 rounded-2xl p-8">
+                <h2 class="text-lg font-semibold text-gray-700 mb-6">Información de la Bodega</h2>
+
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-2">Ubicación *</label>
+                        {{ form.ubicacion }}
+                        {% if form.ubicacion.errors %}
+                            <div class="text-red-600 text-sm mt-1">{{ form.ubicacion.errors.0 }}</div>
+                        {% endif %}
+                        <p class="text-sm text-gray-500 mt-2">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Ejemplos: "Bodega Principal", "Almacén Norte", "Depósito Central", "Sótano A"
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sugerencias de ubicaciones -->
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-6 mt-6">
+                <h3 class="text-sm font-semibold text-blue-800 mb-3">
+                    <i class="fas fa-lightbulb mr-2"></i>Sugerencias de Ubicaciones
+                </h3>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <button type="button" onclick="setUbicacion('Bodega Principal')" class="text-xs bg-white border border-blue-200 rounded-lg px-3 py-2 hover:bg-blue-50 transition-colors duration-200">
+                        Bodega Principal
+                    </button>
+                    <button type="button" onclick="setUbicacion('Almacén Norte')" class="text-xs bg-white border border-blue-200 rounded-lg px-3 py-2 hover:bg-blue-50 transition-colors duration-200">
+                        Almacén Norte
+                    </button>
+                    <button type="button" onclick="setUbicacion('Depósito Central')" class="text-xs bg-white border border-blue-200 rounded-lg px-3 py-2 hover:bg-blue-50 transition-colors duration-200">
+                        Depósito Central
+                    </button>
+                    <button type="button" onclick="setUbicacion('Sótano A')" class="text-xs bg-white border border-blue-200 rounded-lg px-3 py-2 hover:bg-blue-50 transition-colors duration-200">
+                        Sótano A
+                    </button>
+                    <button type="button" onclick="setUbicacion('Piso 2')" class="text-xs bg-white border border-blue-200 rounded-lg px-3 py-2 hover:bg-blue-50 transition-colors duration-200">
+                        Piso 2
+                    </button>
+                    <button type="button" onclick="setUbicacion('Externo')" class="text-xs bg-white border border-blue-200 rounded-lg px-3 py-2 hover:bg-blue-50 transition-colors duration-200">
+                        Externo
+                    </button>
+                </div>
+            </div>
+
+            <!-- Información adicional -->
+            {% if bodega %}
+            <div class="bg-gray-50 rounded-2xl p-6 mt-6">
+                <h2 class="text-lg font-semibold text-gray-700 mb-4">Información Adicional</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-gray-600">
+                    <div>
+                        <span class="font-medium">ID de Bodega:</span>
+                        {{ bodega.id }}
+                    </div>
+                    <div>
+                        <span class="font-medium">Estado:</span>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <i class="fas fa-check-circle mr-1"></i>Activa
+                        </span>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+            <a href="{% url 'lista_bodegas' %}" class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                Cancelar
+            </a>
+            <button type="submit" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                {% if bodega %}Actualizar Bodega{% else %}Crear Bodega{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+function setUbicacion(ubicacion) {
+    document.querySelector('input[name="ubicacion"]').value = ubicacion;
+}
+</script>
+{% endblock %}
