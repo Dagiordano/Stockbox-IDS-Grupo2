@@ -1,1 +1,51 @@
-<h1>Aquí va el login</h1>
+{% load socialaccount %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Iniciar sesión</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f6f6f6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .login-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .google-btn {
+            background-color: #4285F4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .google-btn:hover {
+            background-color: #3367D6;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>Iniciar sesión</h1>
+
+        <p>Puedes iniciar sesión con tu cuenta de Google:</p>
+
+        <!-- 🔹 Botón de login con Google -->
+        <a href="{% provider_login_url 'google' %}">
+            <button class="google-btn">Iniciar sesión con Google</button>
+        </a>
+    </div>
+</body>
+</html>

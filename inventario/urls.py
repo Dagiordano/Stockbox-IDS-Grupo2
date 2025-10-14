@@ -1,5 +1,6 @@
-from django.urls import path
+from django.urls import path, include
 from django.contrib.auth import views as auth_views
+from django.contrib import admin
 
 from . import views
 
@@ -40,4 +41,6 @@ urlpatterns = [
     path("movimientos/crear/", views.crear_movimiento, name="crear_movimiento"),
     path("movimientos/editar/<int:id>/", views.editar_movimiento, name="editar_movimiento"),
     path("movimientos/eliminar/<int:id>/", views.eliminar_movimiento, name="eliminar_movimiento"),
+    
+    path("accounts/", include("allauth.urls")),
 ]
