@@ -1,20 +1,79 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Dashboard - StockBox{% endblock %}
 
 {% block content %}
-<div class="bg-white rounded-2xl shadow-lg p-8">
-    <div class="flex items-center gap-3 mb-6">
-        <div class="bg-indigo-600 p-3 rounded-lg">
-            <i class="fas fa-chart-line text-white text-xl"></i>
+<div class="p-8">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">Dashboard</h1>
+            <p class="text-gray-500">Resumen general de tu inventario.</p>
         </div>
-        <h1 class="text-3xl font-bold text-gray-800">Dashboard</h1>
+        <div class="flex items-center gap-4">
+            <a href="{% url 'crear_movimiento' %}" class="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors duration-200 flex items-center gap-2">
+                <i class="fas fa-exchange-alt"></i>
+                Ajustar Stock
+            </a>
+            <a href="{% url 'gestionar' %}" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors duration-200">
+                Gestionar Catálogo
+            </a>
+        </div>
     </div>
-    
-    <div class="text-center py-12">
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Total Stock -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 flex items-center gap-6">
+            <div class="bg-blue-100 p-4 rounded-full">
+                <i class="fas fa-boxes text-blue-600 text-2xl"></i>
+            </div>
+            <div>
+                <p class="text-gray-500 text-sm">Stock Total</p>
+                <p class="text-3xl font-bold text-gray-800">1,250</p> {# Reemplazar con {{ total_stock|default:"0" }} #}
+            </div>
+        </div>
+
+        <!-- Sales -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 flex items-center gap-6">
+            <div class="bg-green-100 p-4 rounded-full">
+                <i class="fas fa-dollar-sign text-green-600 text-2xl"></i>
+            </div>
+            <div>
+                <p class="text-gray-500 text-sm">Ventas (Últ. 30 días)</p>
+                <p class="text-3xl font-bold text-gray-800">89</p> {# Reemplazar con {{ total_ventas|default:"0" }} #}
+            </div>
+        </div>
+
+        <!-- Products -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 flex items-center gap-6">
+            <div class="bg-indigo-100 p-4 rounded-full">
+                <i class="fas fa-tshirt text-indigo-600 text-2xl"></i>
+            </div>
+            <div>
+                <p class="text-gray-500 text-sm">Productos Activos</p>
+                <p class="text-3xl font-bold text-gray-800">42</p> {# Reemplazar con {{ total_productos|default:"0" }} #}
+            </div>
+        </div>
+
+        <!-- Warehouses -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 flex items-center gap-6">
+            <div class="bg-yellow-100 p-4 rounded-full">
+                <i class="fas fa-warehouse text-yellow-600 text-2xl"></i>
+            </div>
+            <div>
+                <p class="text-gray-500 text-sm">Bodegas</p>
+                <p class="text-3xl font-bold text-gray-800">3</p> {# Reemplazar con {{ total_bodegas|default:"0" }} #}
+            </div>
+        </div>
+    </div>
+
+    <!-- Placeholder for future charts -->
+    <div class="bg-white rounded-2xl shadow-lg p-8 text-center">
         <i class="fas fa-chart-bar text-6xl text-gray-300 mb-4"></i>
-        <h2 class="text-2xl font-semibold text-gray-600 mb-2">Dashboard en Desarrollo</h2>
-        <p class="text-gray-500">Próximamente tendrás estadísticas detalladas de tu inventario</p>
+        <h2 class="text-2xl font-semibold text-gray-600 mb-2">Gráficos de Inventario</h2>
+        <p class="text-gray-500">Próximamente tendrás estadísticas detalladas y gráficos de tu inventario.</p>
     </div>
 </div>
 {% endblock %}
