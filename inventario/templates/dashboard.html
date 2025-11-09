@@ -69,11 +69,95 @@
         </div>
     </div>
 
-    <!-- Placeholder for future charts -->
-    <div class="bg-white rounded-2xl shadow-lg p-8 text-center">
-        <i class="fas fa-chart-bar text-6xl text-gray-300 mb-4"></i>
-        <h2 class="text-2xl font-semibold text-gray-600 mb-2">Gráficos de Inventario</h2>
-        <p class="text-gray-500">Próximamente tendrás estadísticas detalladas y gráficos de tu inventario.</p>
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <!-- Main Chart -->
+        <div class="lg:col-span-3 bg-white rounded-2xl shadow-lg p-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Ventas por Producto (Últ. 30 días)</h3>
+            <canvas id="salesChart"></canvas>
+        </div>
+
+        <!-- Side Chart -->
+        <div class="lg:col-span-2 bg-white rounded-2xl shadow-lg p-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Stock por Categoría</h3>
+            <canvas id="stockByCategoryChart"></canvas>
+        </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // --- Gráfico de Ventas por Producto (Bar) ---
+    const salesCtx = document.getElementById('salesChart').getContext('2d');
+    
+    // Datos de ejemplo. Reemplazar con datos del backend.
+    // const salesLabels = {{ sales_labels|safe }};
+    // const salesData = {{ sales_data|safe }};
+    const salesLabels = ['Camisa Polo', 'Pantalón Chino', 'Chaqueta Denim', 'Vestido Floral', 'Zapatillas Urban'];
+    const salesData = [45, 30, 15, 25, 50];
+
+    new Chart(salesCtx, {
+        type: 'bar',
+        data: {
+            labels: salesLabels,
+            datasets: [{
+                label: 'Unidades Vendidas',
+                data: salesData,
+                backgroundColor: 'rgba(251, 146, 60, 0.6)', // Naranja de Tailwind
+                borderColor: 'rgba(251, 146, 60, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+
+    // --- Gráfico de Stock por Categoría (Doughnut) ---
+    const stockCtx = document.getElementById('stockByCategoryChart').getContext('2d');
+
+    // Datos de ejemplo. Reemplazar con datos del backend.
+    // const stockLabels = {{ stock_labels|safe }};
+    // const stockData = {{ stock_data|safe }};
+    const stockLabels = ['Camisas', 'Pantalones', 'Chaquetas', 'Vestidos', 'Calzado'];
+    const stockData = [350, 250, 150, 80, 120];
+
+    new Chart(stockCtx, {
+        type: 'doughnut',
+        data: {
+            labels: stockLabels,
+            datasets: [{
+                label: 'Stock',
+                data: stockData,
+                backgroundColor: [
+                    'rgba(59, 130, 246, 0.7)',  // blue-500
+                    'rgba(16, 185, 129, 0.7)', // green-500
+                    'rgba(239, 68, 68, 0.7)',   // red-500
+                    'rgba(245, 158, 11, 0.7)', // yellow-500
+                    'rgba(139, 92, 246, 0.7)'  // violet-500
+                ],
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            }
+        }
+    });
+});
+</script>
 {% endblock %}
