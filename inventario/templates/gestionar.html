@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestionar - StockBox{% endblock %}
+
+{% block content %}
+<!-- Header Section -->
+<div class="text-center mb-12">
+    <div class="flex items-center justify-center gap-3 mb-6">
+        <div class="bg-purple-600 p-3 rounded-lg">
+            <i class="fas fa-edit text-white text-2xl"></i>
+        </div>
+        <h1 class="text-4xl font-bold text-gray-800">Gestionar Catálogo</h1>
+    </div>
+    <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+        Selecciona qué tipo de elemento quieres crear, editar o administrar
+    </p>
+</div>
+
+<!-- Selection Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+    
+    <!-- Productos Card -->
+    <a href="{% url 'lista_productos' %}" class="group">
+        <div class="bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 p-8 text-center border-2 border-transparent hover:border-indigo-200">
+            <div class="bg-gradient-to-r from-indigo-500 to-blue-600 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                <i class="fas fa-box text-white text-3xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">Productos</h3>
+            <p class="text-gray-600 leading-relaxed mb-6">
+                Administra las categorías generales de productos. Define marcas, materiales, precios y características base.
+            </p>
+            <div class="space-y-2 text-sm text-gray-500">
+                <p>• Crear nuevas categorías</p>
+                <p>• Editar información base</p>
+                <p>• Gestionar precios y costos</p>
+                <p>• Subir imágenes</p>
+            </div>
+            <div class="mt-6">
+                <span class="inline-flex items-center text-indigo-600 font-semibold group-hover:text-indigo-700">
+                    Gestionar Productos
+                    <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform duration-300"></i>
+                </span>
+            </div>
+        </div>
+    </a>
+
+    <!-- Prendas Card -->
+    <a href="{% url 'lista_prendas' %}" class="group">
+        <div class="bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 p-8 text-center border-2 border-transparent hover:border-green-200">
+            <div class="bg-gradient-to-r from-green-500 to-emerald-600 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                <i class="fas fa-tshirt text-white text-3xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">Prendas</h3>
+            <p class="text-gray-600 leading-relaxed mb-6">
+                Gestiona prendas específicas con tallas, colores y precios individuales. Cada prenda pertenece a un producto.
+            </p>
+            <div class="space-y-2 text-sm text-gray-500">
+                <p>• Crear prendas específicas</p>
+                <p>• Asignar tallas y colores</p>
+                <p>• Definir precios individuales</p>
+                <p>• Vincular con productos</p>
+            </div>
+            <div class="mt-6">
+                <span class="inline-flex items-center text-green-600 font-semibold group-hover:text-green-700">
+                    Gestionar Prendas
+                    <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform duration-300"></i>
+                </span>
+            </div>
+        </div>
+    </a>
+
+    <!-- Bodegas Card -->
+    <a href="{% url 'lista_bodegas' %}" class="group">
+        <div class="bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 p-8 text-center border-2 border-transparent hover:border-blue-200">
+            <div class="bg-gradient-to-r from-blue-500 to-cyan-600 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                <i class="fas fa-warehouse text-white text-3xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">Bodegas</h3>
+            <p class="text-gray-600 leading-relaxed mb-6">
+                Administra las ubicaciones de almacenamiento donde se guardan las prendas. Organiza tu inventario por ubicación.
+            </p>
+            <div class="space-y-2 text-sm text-gray-500">
+                <p>• Crear nuevas ubicaciones</p>
+                <p>• Editar ubicaciones existentes</p>
+                <p>• Organizar por zonas</p>
+                <p>• Gestionar capacidad</p>
+            </div>
+            <div class="mt-6">
+                <span class="inline-flex items-center text-blue-600 font-semibold group-hover:text-blue-700">
+                    Gestionar Bodegas
+                    <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform duration-300"></i>
+                </span>
+            </div>
+        </div>
+    </a>
+
+</div>
+
+<!-- Quick Actions Section -->
+<div class="mt-16 bg-white rounded-2xl shadow-lg p-8">
+    <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">Acciones Rápidas</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <a href="{% url 'crear_producto' %}" class="text-center p-6 rounded-lg hover:bg-gray-50 transition-colors duration-200 border border-gray-200 hover:border-indigo-300">
+            <i class="fas fa-plus-circle text-indigo-600 text-3xl mb-3"></i>
+            <p class="font-medium text-gray-700">Crear Producto</p>
+            <p class="text-sm text-gray-500">Nueva categoría</p>
+        </a>
+        <a href="{% url 'crear_prenda' %}" class="text-center p-6 rounded-lg hover:bg-gray-50 transition-colors duration-200 border border-gray-200 hover:border-green-300">
+            <i class="fas fa-plus-circle text-green-600 text-3xl mb-3"></i>
+            <p class="font-medium text-gray-700">Crear Prenda</p>
+            <p class="text-sm text-gray-500">Nueva prenda específica</p>
+        </a>
+        <a href="{% url 'crear_bodega' %}" class="text-center p-6 rounded-lg hover:bg-gray-50 transition-colors duration-200 border border-gray-200 hover:border-blue-300">
+            <i class="fas fa-plus-circle text-blue-600 text-3xl mb-3"></i>
+            <p class="font-medium text-gray-700">Crear Bodega</p>
+            <p class="text-sm text-gray-500">Nueva ubicación</p>
+        </a>
+    </div>
+</div>
+
+<!-- Back to Home -->
+<div class="text-center mt-8">
+    <a href="{% url 'home' %}" class="inline-flex items-center text-gray-600 hover:text-gray-800 transition-colors duration-200">
+        <i class="fas fa-arrow-left mr-2"></i>
+        Volver al Inicio
+    </a>
+</div>
+{% endblock %}
