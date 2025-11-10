@@ -52,8 +52,8 @@
                 <i class="fas fa-tshirt text-indigo-600 text-2xl"></i>
             </div>
             <div>
-                <p class="text-gray-500 text-sm">Productos Activos</p>
-                <p class="text-3xl font-bold text-gray-800">42</p> {# Reemplazar con {{ total_productos|default:"0" }} #}
+                <p class="text-gray-500 text-sm">Modelos de Poleras</p>
+                <p class="text-3xl font-bold text-gray-800">42</p> {# Reemplazar con {{ total_poleras|default:"0" }} #}
             </div>
         </div>
 
@@ -73,7 +73,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
         <!-- Main Chart -->
         <div class="lg:col-span-3 bg-white rounded-2xl shadow-lg p-6">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">Ventas por Producto (Últ. 30 días)</h3>
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Ventas por Modelo (Últ. 30 días)</h3>
             <canvas id="salesChart"></canvas>
         </div>
 
@@ -93,8 +93,8 @@ document.addEventListener('DOMContentLoaded', function () {
     // Datos de ejemplo. Reemplazar con datos del backend.
     // const salesLabels = {{ sales_labels|safe }};
     // const salesData = {{ sales_data|safe }};
-    const salesLabels = ['Camisa Polo', 'Pantalón Chino', 'Chaqueta Denim', 'Vestido Floral', 'Zapatillas Urban'];
-    const salesData = [45, 30, 15, 25, 50];
+    const salesLabels = ['Polera Básica Blanca', 'Polera Gráfica Negra', 'Polera Manga Larga Gris', 'Polera Oversize', 'Polera sin Mangas'];
+    const salesData = [65, 42, 35, 28, 18];
 
     new Chart(salesCtx, {
         type: 'bar',
@@ -129,8 +129,8 @@ document.addEventListener('DOMContentLoaded', function () {
     // Datos de ejemplo. Reemplazar con datos del backend.
     // const stockLabels = {{ stock_labels|safe }};
     // const stockData = {{ stock_data|safe }};
-    const stockLabels = ['Camisas', 'Pantalones', 'Chaquetas', 'Vestidos', 'Calzado'];
-    const stockData = [350, 250, 150, 80, 120];
+    const stockLabels = ['Manga Corta', 'Manga Larga', 'Sin Mangas', 'Oversize', 'Gráficas'];
+    const stockData = [450, 220, 150, 180, 250];
 
     new Chart(stockCtx, {
         type: 'doughnut',
