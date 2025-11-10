@@ -196,8 +196,8 @@ def eliminar_bodega(request, id):
 
 # PrendaBodega CRUD
 def lista_prenda_bodega(request):
-    # logica para listar prenda bodega
-    return render(request, 'prenda_bodega_list.html')
+    items_stock = PrendaBodega.objects.select_related('prenda__producto', 'bodega').order_by('bodega__ubicacion', 'prenda__producto__nombre')
+    return render(request, 'prenda_bodega_list.html', {'items_stock': items_stock})
 
 def crear_prenda_bodega(request):
     # logica para crear prenda bodega
