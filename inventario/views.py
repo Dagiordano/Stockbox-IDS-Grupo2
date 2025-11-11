@@ -2,9 +2,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Sum, Count
+from django.db.models import Sum, Count, F, ExpressionWrapper, DecimalField
+from django.db.models.functions import TruncDate
 from django.utils import timezone
 from datetime import timedelta
+from decimal import Decimal
 import json
 from .models import Producto, Prenda, Bodega, PrendaBodega, MovimientoInventario
 from .forms import ProductoForm, PrendaForm, BodegaForm, MovimientoForm
@@ -64,6 +66,55 @@ def dashboard(request):
     
     stock_labels = [item['categoria'] for item in stock_por_categoria if item['total_stock']]
     stock_data = [item['total_stock'] for item in stock_por_categoria if item['total_stock']]
+
+    # Metricas de ingresos, costos y ganancia (ultimos 30 dias)
+    revenue_expr = ExpressionWrapper(
+        F('cantidad') * F('prenda_bodega__prenda__precio_venta'),
+        output_field=DecimalField(max_digits=12, decimal_places=2)
+    )
+    cost_expr = ExpressionWrapper(
+        F('cantidad') * F('prenda_bodega__prenda__precio_compra'),
+        output_field=DecimalField(max_digits=12, decimal_places=2)
+    )
+    profit_expr = ExpressionWrapper(
+        F('cantidad') * (F('prenda_bodega__prenda__precio_venta') - F('prenda_bodega__prenda__precio_compra')),
+        output_field=DecimalField(max_digits=12, decimal_places=2)
+    )
+
+    movimientos_ultimo_mes = MovimientoInventario.objects.filter(
+        motivo='SELL',
+        fecha__gte=fecha_limite
+    )
+
+    totales = movimientos_ultimo_mes.aggregate(
+        revenue=Sum(revenue_expr),
+        cost=Sum(cost_expr),
+        profit=Sum(profit_expr),
+    )
+    revenue_last_30 = float(totales['revenue'] or 0)
+    cost_last_30 = float(totales['cost'] or 0)
+    profit_last_30 = float(totales['profit'] or 0)
+
+    # Ganancia diaria (ultimos 90 dias para el grafico)
+    fecha_limite_profit = timezone.now() - timedelta(days=90)
+    movimientos_ultimos_90 = MovimientoInventario.objects.filter(
+        motivo='SELL',
+        fecha__gte=fecha_limite_profit
+    )
+    profit_diaria = movimientos_ultimos_90.annotate(day=TruncDate('fecha')).values('day').annotate(
+        profit=Sum(profit_expr)
+    ).order_by('day')
+    profit_daily_labels = [item['day'].strftime('%Y-%m-%d') for item in profit_diaria]
+    profit_daily_data = [float(item['profit'] or 0) for item in profit_diaria]
+
+    # Top ganancia por producto (ultimos 90 dias)
+    ganancia_por_producto = movimientos_ultimos_90.values(
+        'prenda_bodega__prenda__producto__nombre'
+    ).annotate(
+        profit=Sum(profit_expr)
+    ).order_by('-profit')[:5]
+    profit_product_labels = [item['prenda_bodega__prenda__producto__nombre'] for item in ganancia_por_producto]
+    profit_product_data = [float(item['profit'] or 0) for item in ganancia_por_producto]
     
     context = {
         'total_stock': total_stock,
@@ -74,6 +125,13 @@ def dashboard(request):
         'sales_data': json.dumps(sales_data),
         'stock_labels': json.dumps(stock_labels),
         'stock_data': json.dumps(stock_data),
+        'revenue_last_30': revenue_last_30,
+        'cost_last_30': cost_last_30,
+        'profit_last_30': profit_last_30,
+        'profit_daily_labels': json.dumps(profit_daily_labels),
+        'profit_daily_data': json.dumps(profit_daily_data),
+        'profit_product_labels': json.dumps(profit_product_labels),
+        'profit_product_data': json.dumps(profit_product_data),
     }
     
     return render(request, 'dashboard.html', context)

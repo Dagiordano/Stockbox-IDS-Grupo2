@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load currency_filters %}
 
 {% block title %}Dashboard - StockBox{% endblock %}
 
@@ -69,6 +70,40 @@
         </div>
     </div>
 
+    <!-- Revenue/Cost/Profit Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- Revenue -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 flex items-center gap-6">
+            <div class="bg-green-100 p-4 rounded-full">
+                <i class="fas fa-coins text-green-600 text-2xl"></i>
+            </div>
+            <div>
+                <p class="text-gray-500 text-sm">Ingresos (ult. 30 dias)</p>
+                <p class="text-3xl font-bold text-gray-800">${{ revenue_last_30|currency_format }}</p>
+            </div>
+        </div>
+        <!-- Cost -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 flex items-center gap-6">
+            <div class="bg-red-100 p-4 rounded-full">
+                <i class="fas fa-file-invoice-dollar text-red-600 text-2xl"></i>
+            </div>
+            <div>
+                <p class="text-gray-500 text-sm">Costos (ult. 30 dias)</p>
+                <p class="text-3xl font-bold text-gray-800">${{ cost_last_30|currency_format }}</p>
+            </div>
+        </div>
+        <!-- Profit -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 flex items-center gap-6">
+            <div class="bg-emerald-100 p-4 rounded-full">
+                <i class="fas fa-chart-line text-emerald-600 text-2xl"></i>
+            </div>
+            <div>
+                <p class="text-gray-500 text-sm">Ganancia (ult. 30 dias)</p>
+                <p class="text-3xl font-bold text-gray-800">${{ profit_last_30|currency_format }}</p>
+            </div>
+        </div>
+    </div>
+
     <!-- Charts Section -->
     <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
         <!-- Main Chart -->
@@ -81,6 +116,20 @@
         <div class="lg:col-span-2 bg-white rounded-2xl shadow-lg p-6">
             <h3 class="text-xl font-bold text-gray-800 mb-4">Stock por Categoría</h3>
             <canvas id="stockByCategoryChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Profit Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 mt-6">
+        <!-- Profit Daily -->
+        <div class="lg:col-span-3 bg-white rounded-2xl shadow-lg p-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Ganancia diaria (ult. 90 dias)</h3>
+            <canvas id="profitDailyChart"></canvas>
+        </div>
+        <!-- Profit by Product -->
+        <div class="lg:col-span-2 bg-white rounded-2xl shadow-lg p-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Top ganancia por modelo (ult. 90 dias)</h3>
+            <canvas id="profitByProductChart"></canvas>
         </div>
     </div>
 </div>
@@ -168,6 +217,62 @@ document.addEventListener('DOMContentLoaded', function () {
     } else {
         // Mostrar mensaje si no hay datos
         stockCtx.canvas.parentElement.innerHTML = '<p class="text-center text-gray-500 py-8">No hay stock registrado</p>';
+    }
+
+    // --- Grafico de Ganancia Diaria (Line) ---
+    const profitDailyCtx = document.getElementById('profitDailyChart').getContext('2d');
+    const profitDailyLabels = {{ profit_daily_labels|safe }};
+    const profitDailyData = {{ profit_daily_data|safe }};
+    if (profitDailyLabels.length > 0) {
+        new Chart(profitDailyCtx, {
+            type: 'line',
+            data: {
+                labels: profitDailyLabels,
+                datasets: [{
+                    label: 'Ganancia ($)',
+                    data: profitDailyData,
+                    borderColor: 'rgba(16, 185, 129, 1)',
+                    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    } else {
+        profitDailyCtx.canvas.parentElement.innerHTML = '<p class="text-center text-gray-500 py-8">No hay datos de ganancia</p>';
+    }
+
+    // --- Grafico de Ganancia por Producto (Bar) ---
+    const profitProdCtx = document.getElementById('profitByProductChart').getContext('2d');
+    const profitProdLabels = {{ profit_product_labels|safe }};
+    const profitProdData = {{ profit_product_data|safe }};
+    if (profitProdLabels.length > 0) {
+        new Chart(profitProdCtx, {
+            type: 'bar',
+            data: {
+                labels: profitProdLabels,
+                datasets: [{
+                    label: 'Ganancia ($)',
+                    data: profitProdData,
+                    backgroundColor: 'rgba(59, 130, 246, 0.6)',
+                    borderColor: 'rgba(59, 130, 246, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: { y: { beginAtZero: true } },
+                plugins: { legend: { display: false } }
+            }
+        });
+    } else {
+        profitProdCtx.canvas.parentElement.innerHTML = '<p class="text-center text-gray-500 py-8">No hay datos de ganancia por modelo</p>';
     }
 });
 </script>
