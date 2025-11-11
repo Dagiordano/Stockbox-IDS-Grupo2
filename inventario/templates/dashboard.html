@@ -31,7 +31,7 @@
             </div>
             <div>
                 <p class="text-gray-500 text-sm">Stock Total</p>
-                <p class="text-3xl font-bold text-gray-800">1,250</p> {# Reemplazar con {{ total_stock|default:"0" }} #}
+                <p class="text-3xl font-bold text-gray-800">{{ total_stock|default:"0" }}</p>
             </div>
         </div>
 
@@ -42,7 +42,7 @@
             </div>
             <div>
                 <p class="text-gray-500 text-sm">Ventas (Últ. 30 días)</p>
-                <p class="text-3xl font-bold text-gray-800">89</p> {# Reemplazar con {{ total_ventas|default:"0" }} #}
+                <p class="text-3xl font-bold text-gray-800">{{ total_ventas|default:"0" }}</p>
             </div>
         </div>
 
@@ -53,7 +53,7 @@
             </div>
             <div>
                 <p class="text-gray-500 text-sm">Modelos de Poleras</p>
-                <p class="text-3xl font-bold text-gray-800">42</p> {# Reemplazar con {{ total_poleras|default:"0" }} #}
+                <p class="text-3xl font-bold text-gray-800">{{ total_poleras|default:"0" }}</p>
             </div>
         </div>
 
@@ -64,7 +64,7 @@
             </div>
             <div>
                 <p class="text-gray-500 text-sm">Bodegas</p>
-                <p class="text-3xl font-bold text-gray-800">3</p> {# Reemplazar con {{ total_bodegas|default:"0" }} #}
+                <p class="text-3xl font-bold text-gray-800">{{ total_bodegas|default:"0" }}</p>
             </div>
         </div>
     </div>
@@ -90,74 +90,85 @@ document.addEventListener('DOMContentLoaded', function () {
     // --- Gráfico de Ventas por Producto (Bar) ---
     const salesCtx = document.getElementById('salesChart').getContext('2d');
     
-    // Datos de ejemplo. Reemplazar con datos del backend.
-    // const salesLabels = {{ sales_labels|safe }};
-    // const salesData = {{ sales_data|safe }};
-    const salesLabels = ['Polera Básica Blanca', 'Polera Gráfica Negra', 'Polera Manga Larga Gris', 'Polera Oversize', 'Polera sin Mangas'];
-    const salesData = [65, 42, 35, 28, 18];
+    // Datos del backend
+    const salesLabels = {{ sales_labels|safe }};
+    const salesData = {{ sales_data|safe }};
 
-    new Chart(salesCtx, {
-        type: 'bar',
-        data: {
-            labels: salesLabels,
-            datasets: [{
-                label: 'Unidades Vendidas',
-                data: salesData,
-                backgroundColor: 'rgba(251, 146, 60, 0.6)', // Naranja de Tailwind
-                borderColor: 'rgba(251, 146, 60, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
+    if (salesLabels.length > 0 && salesData.length > 0) {
+        new Chart(salesCtx, {
+            type: 'bar',
+            data: {
+                labels: salesLabels,
+                datasets: [{
+                    label: 'Unidades Vendidas',
+                    data: salesData,
+                    backgroundColor: 'rgba(251, 146, 60, 0.6)', // Naranja de Tailwind
+                    borderColor: 'rgba(251, 146, 60, 1)',
+                    borderWidth: 1
+                }]
             },
-            plugins: {
-                legend: {
-                    display: false
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
                 }
             }
-        }
-    });
+        });
+    } else {
+        // Mostrar mensaje si no hay datos
+        salesCtx.canvas.parentElement.innerHTML = '<p class="text-center text-gray-500 py-8">No hay ventas registradas en los últimos 30 días</p>';
+    }
 
     // --- Gráfico de Stock por Categoría (Doughnut) ---
     const stockCtx = document.getElementById('stockByCategoryChart').getContext('2d');
 
-    // Datos de ejemplo. Reemplazar con datos del backend.
-    // const stockLabels = {{ stock_labels|safe }};
-    // const stockData = {{ stock_data|safe }};
-    const stockLabels = ['Manga Corta', 'Manga Larga', 'Sin Mangas', 'Oversize', 'Gráficas'];
-    const stockData = [450, 220, 150, 180, 250];
+    // Datos del backend
+    const stockLabels = {{ stock_labels|safe }};
+    const stockData = {{ stock_data|safe }};
 
-    new Chart(stockCtx, {
-        type: 'doughnut',
-        data: {
-            labels: stockLabels,
-            datasets: [{
-                label: 'Stock',
-                data: stockData,
-                backgroundColor: [
-                    'rgba(59, 130, 246, 0.7)',  // blue-500
-                    'rgba(16, 185, 129, 0.7)', // green-500
-                    'rgba(239, 68, 68, 0.7)',   // red-500
-                    'rgba(245, 158, 11, 0.7)', // yellow-500
-                    'rgba(139, 92, 246, 0.7)'  // violet-500
-                ],
-                hoverOffset: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
+    if (stockLabels.length > 0 && stockData.length > 0) {
+        new Chart(stockCtx, {
+            type: 'doughnut',
+            data: {
+                labels: stockLabels,
+                datasets: [{
+                    label: 'Stock',
+                    data: stockData,
+                    backgroundColor: [
+                        'rgba(59, 130, 246, 0.7)',  // blue-500
+                        'rgba(16, 185, 129, 0.7)', // green-500
+                        'rgba(239, 68, 68, 0.7)',   // red-500
+                        'rgba(245, 158, 11, 0.7)', // yellow-500
+                        'rgba(139, 92, 246, 0.7)',  // violet-500
+                        'rgba(236, 72, 153, 0.7)',  // pink-500
+                        'rgba(14, 165, 233, 0.7)'   // sky-500
+                    ],
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
                 }
             }
-        }
-    });
+        });
+    } else {
+        // Mostrar mensaje si no hay datos
+        stockCtx.canvas.parentElement.innerHTML = '<p class="text-center text-gray-500 py-8">No hay stock registrado</p>';
+    }
 });
 </script>
 {% endblock %}

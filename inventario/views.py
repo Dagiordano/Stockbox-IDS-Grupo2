@@ -1,6 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.db.models import Sum, Count
+from django.utils import timezone
+from datetime import timedelta
+import json
 from .models import Producto, Prenda, Bodega, PrendaBodega, MovimientoInventario
 from .forms import ProductoForm, PrendaForm, BodegaForm, MovimientoForm
 
@@ -10,26 +15,80 @@ from .forms import ProductoForm, PrendaForm, BodegaForm, MovimientoForm
 
 
 def home(request):
+    # Si no está autenticado, redirigir al login
+    if not request.user.is_authenticated:
+        return redirect('account_login')
     return render(request, 'home.html')
 
 # Dashboard
+@login_required
 def gestionar(request):
     # Vista para seleccionar qué gestionar (productos, prendas, bodegas)
     return render(request, 'gestionar.html')
 
+@login_required
 def dashboard(request):
-    # logica para el dashboard
-    return render(request, 'dashboard.html')
+    # Calcular stock total
+    total_stock = PrendaBodega.objects.aggregate(total=Sum('stock'))['total'] or 0
+    
+    # Calcular ventas de los últimos 30 días
+    fecha_limite = timezone.now() - timedelta(days=30)
+    ventas_ultimo_mes = MovimientoInventario.objects.filter(
+        motivo='SELL',
+        fecha__gte=fecha_limite
+    ).aggregate(total=Sum('cantidad'))['total'] or 0
+    
+    # Contar total de productos únicos
+    total_poleras = Producto.objects.count()
+    
+    # Contar total de bodegas
+    total_bodegas = Bodega.objects.count()
+    
+    # Datos para el gráfico de ventas por modelo (últimos 30 días)
+    ventas_por_producto = MovimientoInventario.objects.filter(
+        motivo='SELL',
+        fecha__gte=fecha_limite
+    ).values(
+        'prenda_bodega__prenda__producto__nombre'
+    ).annotate(
+        total_vendido=Sum('cantidad')
+    ).order_by('-total_vendido')[:5]
+    
+    sales_labels = [item['prenda_bodega__prenda__producto__nombre'] for item in ventas_por_producto]
+    sales_data = [item['total_vendido'] for item in ventas_por_producto]
+    
+    # Datos para el gráfico de stock por categoría
+    stock_por_categoria = Producto.objects.values('categoria').annotate(
+        total_stock=Sum('prenda__prendabodega__stock')
+    ).order_by('-total_stock')
+    
+    stock_labels = [item['categoria'] for item in stock_por_categoria if item['total_stock']]
+    stock_data = [item['total_stock'] for item in stock_por_categoria if item['total_stock']]
+    
+    context = {
+        'total_stock': total_stock,
+        'total_ventas': ventas_ultimo_mes,
+        'total_poleras': total_poleras,
+        'total_bodegas': total_bodegas,
+        'sales_labels': json.dumps(sales_labels),
+        'sales_data': json.dumps(sales_data),
+        'stock_labels': json.dumps(stock_labels),
+        'stock_data': json.dumps(stock_data),
+    }
+    
+    return render(request, 'dashboard.html', context)
 
 
 
 # Productos CRUD
+@login_required
 def lista_productos(request):
     # logica para listar productos
     productos = Producto.objects.all()
    
     return render(request, 'productos_list.html', {'productos': productos})
 
+@login_required
 def crear_producto(request):
     # logica para crear producto
     if request.method == 'POST':
@@ -50,6 +109,7 @@ def crear_producto(request):
         'colores': colores
         })
 
+@login_required
 def editar_producto(request, id):
     # logica para editar producto
     producto = get_object_or_404(Producto, pk=id)
@@ -71,6 +131,7 @@ def editar_producto(request, id):
         'colores': colores
         })
 
+@login_required
 def eliminar_producto(request, id):
     # logica para eliminar producto
     producto = get_object_or_404(Producto, pk=id)
@@ -83,6 +144,7 @@ def eliminar_producto(request, id):
 
 
 # Prendas CRUD
+@login_required
 def lista_prendas(request):
     prendas = Prenda.objects.all().select_related('producto').prefetch_related('prendabodega_set__bodega')
     
@@ -97,6 +159,7 @@ def lista_prendas(request):
         'total_stock': total_stock
     })
 
+@login_required
 def crear_prenda(request):
     if request.method == 'POST':
         form = PrendaForm(request.POST)
@@ -121,6 +184,7 @@ def crear_prenda(request):
 
     return render(request, 'prenda_form.html', {'form': form})
 
+@login_required
 def editar_prenda(request, id):
     prenda = get_object_or_404(Prenda, id=id)
     
@@ -141,6 +205,7 @@ def editar_prenda(request, id):
     
     return render(request, 'prenda_form.html', {'form': form, 'prenda': prenda})
 
+@login_required
 def eliminar_prenda(request, id):
     prenda = get_object_or_404(Prenda, id=id)
     
@@ -154,10 +219,12 @@ def eliminar_prenda(request, id):
 
 
 # Bodegas CRUD
+@login_required
 def lista_bodegas(request):
     bodegas = Bodega.objects.all()
     return render(request, 'bodegas_list.html', {'bodegas': bodegas})
 
+@login_required
 def crear_bodega(request):
     if request.method == 'POST':
         form = BodegaForm(request.POST)
@@ -170,6 +237,7 @@ def crear_bodega(request):
     
     return render(request, 'bodega_form.html', {'form': form})
 
+@login_required
 def editar_bodega(request, id):
     bodega = get_object_or_404(Bodega, id=id)
     
@@ -184,6 +252,7 @@ def editar_bodega(request, id):
     
     return render(request, 'bodega_form.html', {'form': form, 'bodega': bodega})
 
+@login_required
 def eliminar_bodega(request, id):
     bodega = get_object_or_404(Bodega, id=id)
     
@@ -195,18 +264,22 @@ def eliminar_bodega(request, id):
 
 
 # PrendaBodega CRUD
+@login_required
 def lista_prenda_bodega(request):
     items_stock = PrendaBodega.objects.select_related('prenda__producto', 'bodega').order_by('bodega__ubicacion', 'prenda__producto__nombre')
     return render(request, 'prenda_bodega_list.html', {'items_stock': items_stock})
 
+@login_required
 def crear_prenda_bodega(request):
     # logica para crear prenda bodega
     return render(request, 'prenda_bodega_form.html')
 
+@login_required
 def editar_prenda_bodega(request, id):
     # logica para editar prenda bodega
     return render(request, 'prenda_bodega_form.html')
 
+@login_required
 def eliminar_prenda_bodega(request, id):
     # logica para eliminar prenda bodega
     return render(request, 'prenda_bodega_list.html')
@@ -214,10 +287,12 @@ def eliminar_prenda_bodega(request, id):
 
 
 # Movimientos CRUD
+@login_required
 def lista_movimientos(request):
     movimientos = MovimientoInventario.objects.select_related('prenda_bodega__prenda__producto', 'usuario').order_by('-fecha')
     return render(request, 'movimientos_list.html', {'movimientos': movimientos})
 
+@login_required
 def crear_movimiento(request):
     if request.method == 'POST':
         form = MovimientoForm(request.POST)
@@ -252,10 +327,12 @@ def crear_movimiento(request):
     
     return render(request, 'movimiento_form.html', {'form': form})
 
+@login_required
 def editar_movimiento(request, id):
     # logica para editar movimiento
     return render(request, 'movimiento_form.html')
 
+@login_required
 def eliminar_movimiento(request, id):
     # logica para eliminar movimiento
     return render(request, 'movimientos_list.html')

@@ -9,17 +9,136 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <!-- Chart.js para gráficos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Estilos para el dropdown menu */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: white;
+            min-width: 220px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            border-radius: 0.75rem;
+            z-index: 1000;
+            margin-top: 0.25rem;
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+        }
+        .dropdown-content.show {
+            display: block;
+        }
+        .dropdown-toggle {
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body class="bg-gray-50">
-    <nav class="bg-white shadow-sm">
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
                 <div class="flex-shrink-0 flex items-center">
-                    <a href="{% url 'dashboard' %}" class="font-bold text-xl">StockBox</a>
+                    <a href="{% url 'home' %}" class="font-bold text-xl text-gray-800 hover:text-orange-600 transition-colors duration-200">
+                        StockBox
+                    </a>
+                </div>
+                
+                <!-- Botones de navegación -->
+                <div class="flex items-center gap-3">
+                    <!-- Botón Volver Atrás -->
+                    <button onclick="window.history.back()" class="flex items-center gap-2 px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200">
+                        <i class="fas fa-arrow-left"></i>
+                        <span class="hidden sm:inline">Atrás</span>
+                    </button>
+                    
+                    <!-- Botón Home -->
+                    <a href="{% url 'home' %}" class="flex items-center gap-2 px-4 py-2 text-white bg-orange-600 hover:bg-orange-700 rounded-lg transition-colors duration-200">
+                        <i class="fas fa-home"></i>
+                        <span class="hidden sm:inline">Home</span>
+                    </a>
+
+                    {% if user.is_authenticated %}
+                    <!-- Menú de Usuario (Dropdown) -->
+                    <div class="dropdown" id="userDropdown">
+                        <button onclick="toggleDropdown()" class="dropdown-toggle flex items-center gap-2 px-3 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200">
+                            <div class="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center text-white font-bold">
+                                {{ user.email.0|upper }}
+                            </div>
+                            <span class="hidden md:inline">{{ user.email|truncatechars:20 }}</span>
+                            <i class="fas fa-chevron-down text-xs transition-transform duration-200" id="dropdownIcon"></i>
+                        </button>
+                        <div class="dropdown-content" id="dropdownContent">
+                            <div class="py-3 px-4 border-b border-gray-200 bg-gray-50">
+                                <p class="text-sm font-semibold text-gray-800">{{ user.email }}</p>
+                                <p class="text-xs text-gray-500">Cuenta activa</p>
+                            </div>
+                            <div class="py-1">
+                                <a href="{% url 'dashboard' %}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors duration-200">
+                                    <i class="fas fa-chart-line mr-3 w-4"></i>Dashboard
+                                </a>
+                                <a href="{% url 'account_email' %}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors duration-200">
+                                    <i class="fas fa-user-cog mr-3 w-4"></i>Configuración
+                                </a>
+                                <a href="{% url 'account_change_password' %}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors duration-200">
+                                    <i class="fas fa-key mr-3 w-4"></i>Cambiar Contraseña
+                                </a>
+                            </div>
+                            <div class="border-t border-gray-200"></div>
+                            <div class="py-1">
+                                <a href="{% url 'account_logout' %}" class="flex items-center px-4 py-3 text-red-600 hover:bg-red-50 transition-colors duration-200">
+                                    <i class="fas fa-sign-out-alt mr-3 w-4"></i>Cerrar Sesión
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <!-- Botones de Login/Registro -->
+                    <a href="{% url 'account_login' %}" class="flex items-center gap-2 px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span class="hidden sm:inline">Iniciar Sesión</span>
+                    </a>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </nav>
     <main>{% block content %}{% endblock %}</main>
+
+    <script>
+        // JavaScript para manejar el dropdown del menú de usuario
+        function toggleDropdown() {
+            const dropdownContent = document.getElementById('dropdownContent');
+            const dropdownIcon = document.getElementById('dropdownIcon');
+            
+            if (dropdownContent.classList.contains('show')) {
+                dropdownContent.classList.remove('show');
+                dropdownIcon.style.transform = 'rotate(0deg)';
+            } else {
+                dropdownContent.classList.add('show');
+                dropdownIcon.style.transform = 'rotate(180deg)';
+            }
+        }
+
+        // Cerrar dropdown si se hace clic fuera de él
+        window.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('userDropdown');
+            const dropdownContent = document.getElementById('dropdownContent');
+            const dropdownIcon = document.getElementById('dropdownIcon');
+            
+            if (dropdown && !dropdown.contains(event.target)) {
+                dropdownContent.classList.remove('show');
+                dropdownIcon.style.transform = 'rotate(0deg)';
+            }
+        });
+
+        // Prevenir que el dropdown se cierre al hacer clic dentro de él
+        document.getElementById('dropdownContent')?.addEventListener('click', function(event) {
+            event.stopPropagation();
+        });
+    </script>
 </body>
 </html>
