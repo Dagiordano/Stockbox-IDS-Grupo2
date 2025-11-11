@@ -88,16 +88,6 @@
                             {% endif %}
                         </span>
                     </div>
-                    {% if producto.precio_compra %}
-                    <div class="flex items-center justify-between">
-                        <span>Precio Compra:</span>
-                        <span class="font-medium">${{ producto.precio_compra|currency_format }} CLP</span>
-                    </div>
-                    {% endif %}
-                    <div class="flex items-center justify-between">
-                        <span>Precio Venta:</span>
-                        <span class="font-medium text-green-600">${{ producto.precio_venta|currency_format }} CLP</span>
-                    </div>
                     {% if producto.stock_minimo %}
                     <div class="flex items-center justify-between">
                         <span>Stock Mínimo:</span>

@@ -64,7 +64,11 @@
                     </div>
                     <div class="flex items-center justify-between">
                         <span>Precio:</span>
-                        <span class="font-medium text-green-600">${{ prenda.producto.precio_venta|currency_format }} CLP</span>
+                        {% if prenda.precio_venta %}
+                        <span class="font-medium text-green-600">${{ prenda.precio_venta|currency_format }} CLP</span>
+                        {% else %}
+                        <span class="font-medium text-gray-400">No definido</span>
+                        {% endif %}
                     </div>
                     
                     <!-- Información de Stock y Bodega -->

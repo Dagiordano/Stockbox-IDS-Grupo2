@@ -6,7 +6,7 @@ class ProductoForm(forms.ModelForm):
         model = Producto
         fields = [
             'nombre', 'sku', 'categoria', 'marca', 'proveedor',
-            'descripcion', 'precio_compra', 'precio_venta', 'stock_minimo',
+            'descripcion', 'stock_minimo',
             'estado', 'genero', 'imagen'
         ]
         widgets = {
@@ -16,8 +16,6 @@ class ProductoForm(forms.ModelForm):
             'marca': forms.TextInput(attrs={'class': 'form-control'}),
             'proveedor': forms.TextInput(attrs={'class': 'form-control'}),
             'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'precio_compra': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
-            'precio_venta': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
             'stock_minimo': forms.NumberInput(attrs={'class': 'form-control'}),
             'estado': forms.Select(attrs={'class': 'form-select'}),
             'genero': forms.Select(attrs={'class': 'form-select'}),
@@ -41,11 +39,13 @@ class PrendaForm(forms.ModelForm):
     
     class Meta:
         model = Prenda
-        fields = ['producto', 'talla', 'color']
+        fields = ['producto', 'talla', 'color', 'precio_compra', 'precio_venta']
         widgets = {
             'producto': forms.Select(attrs={'class': 'form-select'}),
             'talla': forms.Select(attrs={'class': 'form-select'}),
             'color': forms.TextInput(attrs={'class': 'form-control'}),
+            'precio_compra': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'precio_venta': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
         }
     
     def __init__(self, *args, **kwargs):
