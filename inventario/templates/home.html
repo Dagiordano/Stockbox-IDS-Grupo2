@@ -1,1 +1,98 @@
-<h1>Aquí va el Home</h1>
+{% extends 'base.html' %}
+
+{% block title %}StockBox - Sistema de Inventario{% endblock %}
+
+{% block content %}
+<!-- Welcome Section -->
+<div class="text-center mb-12">
+    <h2 class="text-4xl font-bold text-gray-800 mb-4">Bienvenido a StockBox</h2>
+    <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+        Gestiona tu inventario de prendas de manera eficiente y organizada
+    </p>
+</div>
+
+<!-- Action Buttons Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+    
+    <!-- Stock Management Button -->
+    <a href="{% url 'lista_movimientos' %}" class="group">
+        <div class="bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 p-8 text-center border-2 border-transparent hover:border-indigo-200">
+            <div class="bg-gradient-to-r from-green-500 to-emerald-600 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                <i class="fas fa-plus-minus text-white text-3xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">Añadir o Quitar Stock</h3>
+            <p class="text-gray-600 leading-relaxed">
+                Gestiona el inventario agregando o removiendo stock de prendas en las bodegas
+            </p>
+            <div class="mt-6">
+                <span class="inline-flex items-center text-green-600 font-semibold group-hover:text-green-700">
+                    Gestionar Stock
+                    <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform duration-300"></i>
+                </span>
+            </div>
+        </div>
+    </a>
+
+    <!-- Dashboard Button -->
+    <a href="{% url 'dashboard' %}" class="group">
+        <div class="bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 p-8 text-center border-2 border-transparent hover:border-indigo-200">
+            <div class="bg-gradient-to-r from-blue-500 to-indigo-600 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                <i class="fas fa-chart-line text-white text-3xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">Dashboard</h3>
+            <p class="text-gray-600 leading-relaxed">
+                Visualiza estadísticas y resúmenes del estado actual de tu inventario
+            </p>
+            <div class="mt-6">
+                <span class="inline-flex items-center text-blue-600 font-semibold group-hover:text-blue-700">
+                    Ver Dashboard
+                    <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform duration-300"></i>
+                </span>
+            </div>
+        </div>
+    </a>
+
+    <!-- Management Button -->
+    <a href="{% url 'gestionar' %}" class="group">
+        <div class="bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 p-8 text-center border-2 border-transparent hover:border-indigo-200">
+            <div class="bg-gradient-to-r from-purple-500 to-pink-600 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                <i class="fas fa-edit text-white text-3xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">Crear y Editar</h3>
+            <p class="text-gray-600 leading-relaxed">
+                Administra productos, prendas y bodegas. Crea, edita y organiza tu catálogo
+            </p>
+            <div class="mt-6">
+                <span class="inline-flex items-center text-purple-600 font-semibold group-hover:text-purple-700">
+                    Gestionar Catálogo
+                    <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform duration-300"></i>
+                </span>
+            </div>
+        </div>
+    </a>
+
+</div>
+
+<!-- Quick Stats Section -->
+<div class="mt-16 bg-white rounded-2xl shadow-lg p-8">
+    <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">Acceso Rápido</h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <a href="{% url 'lista_productos' %}" class="text-center p-4 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+            <i class="fas fa-box text-indigo-600 text-2xl mb-2"></i>
+            <p class="text-sm font-medium text-gray-700">Productos</p>
+        </a>
+        <a href="{% url 'lista_prendas' %}" class="text-center p-4 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+            <i class="fas fa-tshirt text-green-600 text-2xl mb-2"></i>
+            <p class="text-sm font-medium text-gray-700">Prendas</p>
+        </a>
+        <a href="{% url 'lista_bodegas' %}" class="text-center p-4 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+            <i class="fas fa-warehouse text-blue-600 text-2xl mb-2"></i>
+            <p class="text-sm font-medium text-gray-700">Bodegas</p>
+        </a>
+        <a href="{% url 'lista_movimientos' %}" class="text-center p-4 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+            <i class="fas fa-exchange-alt text-purple-600 text-2xl mb-2"></i>
+            <p class="text-sm font-medium text-gray-700">Movimientos</p>
+        </a>
+    </div>
+</div>
+{% endblock %}
