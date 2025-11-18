@@ -1,0 +1,7 @@
+Django==5.2.6
+django-allauth==65.0.0
+gunicorn
+whitenoise
+dj-database-url
+psycopg2-binary
+
